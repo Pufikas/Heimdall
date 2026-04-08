@@ -59,21 +59,74 @@ function getUptime() {
     return seconds;
 }
 
-function getHostname() {
-    const hostname = fs.readFileSync("/proc/sys/kernel/hostname", "utf8");
+const cpuName = (() => {
+    const data = fs.readFileSync("/proc/cpuinfo", "utf8");
+    const match = data.match(/model name\s+:\s+(.+)/);
 
-    return hostname;
+    if (!match) return "Unknown CPU";
+
+    return match[1].replace(/Intel\(R\)\s*/g, "").replace(/Core\(TM\)\s*/g, "").replace(/\s*CPU\s*/g, "").trim();
+})();
+
+function getCpuTemps() {
+    try {
+        const base = "/sys/class/hwmon";
+        const dirs = fs.readdirSync(base);
+
+        for (const dir of dirs) {
+            const hwmonPath = `${base}/${dir}`;
+            const namePath = `${hwmonPath}/name`;
+
+            if (!fs.existsSync(namePath)) continue;
+
+            const name = fs.readFileSync(namePath, "utf8").toLowerCase();
+
+            // for intel cpu
+            if (name.includes("coretemp")) {
+                const files = fs.readdirSync(hwmonPath);
+                const temps = [];
+
+                for (const file of files) {
+                    if (file.startsWith("temp") && file.endsWith("_input")) {
+                        const id = file.match(/temp(\d+)_input/)[1];
+
+                        const labelPath = `${hwmonPath}/temp${id}_label`;
+                        const inputPath = `${hwmonPath}/temp${id}_input`;
+
+                        if (!fs.existsSync(inputPath)) continue;
+
+                        const temp = parseInt(fs.readFileSync(inputPath, "utf8")) / 1000;
+
+                        let label = `temp${id}`;
+                        if (fs.existsSync(labelPath)) {
+                            label = fs.readFileSync(labelPath, "utf8").trim();
+                        }
+
+                        // only include actual cpu cores    
+                        if (label.toLowerCase().includes("core")) {
+                            temps.push({ core: label, temp });
+                        }
+                    }
+                }
+
+                return temps;
+            }
+        }
+
+        return [];
+    } catch {
+        return [];
+    }
 }
+
+const hostname = fs.readFileSync("/proc/sys/kernel/hostname", "utf8").trim();
 
 app.get("/api/stats", (req, res) => {
     const ram = getRamUsage();
-    const cpu = getCpuUsage();
-    const uptime = getUptime();
-    const hostname = getHostname();
 
     getDiskUsage((disk) => {
         res.json({ 
-            cpu, 
+            cpu: getCpuUsage(),
             ram: {
                 cached: ram.cached,
                 percent: ram.percent,
@@ -82,8 +135,10 @@ app.get("/api/stats", (req, res) => {
                 free: ram.free
             }, 
             disk,
-            uptime,
-            hostname
+            uptime: getUptime(),
+            hostname,
+            cpuName,
+            cpuTemps: getCpuTemps()
         });
     });
 });

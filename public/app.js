@@ -29,13 +29,18 @@ function formatUptime(sec) {
 async function update() {
     const res = await fetch("/api/stats");
     const data = await res.json();
+    
     pushValue(cpuHistory, data.cpu);
     pushValue(ramHistory, data.ram.percent);
-
+    
     document.getElementById("hostname").innerText = data.hostname;
 
-    document.getElementById("cpu").innerText = `CPU  ${data.cpu.toFixed(1).padStart(5)}%\n` + 
-        renderGraph(cpuHistory);
+    const tempsText = data.cpuTemps.map(t => `${t.core}: ${t.temp.toFixed(0)}°C`).join("\n");
+
+    document.getElementById("cpu").innerText =
+        `${data.cpuName}\n` +
+        `CPU  ${data.cpu.toFixed(1).padStart(5)}%\n` +
+        renderGraph(cpuHistory) + "\n" + tempsText;
 
     document.getElementById("ram").innerText = `RAM  ${data.ram.percent.toFixed(1).padStart(10)}%\n` + 
         renderGraph(ramHistory) + '\n' + 
