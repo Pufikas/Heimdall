@@ -1,6 +1,7 @@
 const cpuHistory = [];
 const ramHistory = [];
 const MAX_POINTS = 10;
+const socket = io();
 
 function pushValue(arr, value) {
     arr.push(value);
@@ -26,14 +27,12 @@ function formatUptime(sec) {
   return `${h}h ${m}m`;
 }
 
-async function updContainer() {
-    const cont = await fetch("/api/containers");
-    const containers = await cont.json();
+function updContainer(data) {
     const contWrap = document.getElementById("docker");
 
     contWrap.innerHTML = "";
 
-    containers.forEach(c => {
+    data.containers.forEach(c => {
         const li = document.createElement("li");
         li.title = c.image;
         li.innerText = `${c.name} • ${c.state}`;
@@ -42,10 +41,7 @@ async function updContainer() {
     });
 }
 
-async function update() {
-    const res = await fetch("/api/stats");
-    const data = await res.json();
-    
+function update(data) {
     pushValue(cpuHistory, data.cpu);
     pushValue(ramHistory, data.ram.percent);
     
@@ -68,7 +64,15 @@ async function update() {
         `UP ${formatUptime(data.uptime)}`;
 }
 
-update();
+io.on("connection", (socket) => {
+    socket.emit("stats", metrics);
+});
 
-setInterval(update, 2000);
-setInterval(updContainer, 10000);
+socket.on("stats", (data) => {
+    update(data);
+    updContainer(data);
+});
+
+socket.on("disconnect", () => {
+    console.log("client disconnected");
+});
