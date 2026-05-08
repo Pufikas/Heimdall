@@ -1,5 +1,12 @@
 {
+  "name": "heimdall-dashboard",
+  "version": "1.0.0",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
   "dependencies": {
-    "express": "^5.2.1"
+    "dockerode": "^5.0.0",
+    "express": "^5.2.0"
   }
 }

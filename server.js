@@ -4,11 +4,12 @@ const { exec } = require("child_process");
 
 const app = express();
 const PORT = 3939;
+const { getContainers } = require("./container_api");
 
 app.use(express.static("public"));
 
 function getRamUsage() {
-    const data = fs.readFileSync("/proc/meminfo", "utf8");
+    const data = fs.readFileSync("/host/proc/meminfo", "utf8");
     const total = parseInt(data.match(/MemTotal:\s+(\d+)/)[1]);
     const available = parseInt(data.match(/MemAvailable:\s+(\d+)/)[1]);
     const used = total - available;
@@ -21,7 +22,7 @@ let lastIdle = 0;
 let lastTotal = 0;
 
 function getCpuUsage() {
-  const data = fs.readFileSync("/proc/stat", "utf8");
+  const data = fs.readFileSync("/host/proc/stat", "utf8");
   const line = data.split("\n")[0];
 
   const values = line.split(/\s+/).slice(1).map(Number);
@@ -41,7 +42,7 @@ function getCpuUsage() {
 }
 
 function getDiskUsage(callback) {
-    exec("df / --output=size,used,avail,pcent", (err, stdout) => {
+    exec("df /host/root --output=size,used,avail,pcent", (err, stdout) => {
         if (err) return callback(null);
 
         // lines[0] -> header, lines[1] -> values
@@ -55,12 +56,12 @@ function getDiskUsage(callback) {
 }
 
 function getUptime() {
-    const seconds = parseFloat(fs.readFileSync("/proc/uptime", "utf8").split(" ")[0]);
+    const seconds = parseFloat(fs.readFileSync("/host/proc/uptime", "utf8").split(" ")[0]);
     return seconds;
 }
 
 const cpuName = (() => {
-    const data = fs.readFileSync("/proc/cpuinfo", "utf8");
+    const data = fs.readFileSync("/host/proc/cpuinfo", "utf8");
     const match = data.match(/model name\s+:\s+(.+)/);
 
     if (!match) return "Unknown CPU";
@@ -70,7 +71,7 @@ const cpuName = (() => {
 
 function getCpuTemps() {
     try {
-        const base = "/sys/class/hwmon";
+        const base = "/host/sys/class/hwmon";
         const dirs = fs.readdirSync(base);
 
         for (const dir of dirs) {
@@ -119,7 +120,7 @@ function getCpuTemps() {
     }
 }
 
-const hostname = fs.readFileSync("/proc/sys/kernel/hostname", "utf8").trim();
+const hostname = fs.readFileSync("/host/proc/sys/kernel/hostname", "utf8").trim();
 
 app.get("/api/stats", (req, res) => {
     const ram = getRamUsage();
@@ -140,6 +141,14 @@ app.get("/api/stats", (req, res) => {
             cpuName,
             cpuTemps: getCpuTemps()
         });
+    });
+});
+
+app.get("/api/containers", async (req, res) => {
+    const cont = await getContainers();
+
+    res.json({
+        cont
     });
 });
 

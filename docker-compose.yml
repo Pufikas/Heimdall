@@ -1,0 +1,16 @@
+services:
+  heimdall:
+    build: .
+    container_name: heimdall-dashboard
+
+    ports:
+      - "3939:3939"
+
+    restart: unless-stopped
+
+    volumes:
+      - /proc:/host/proc:ro
+      - /sys:/host/sys:ro
+      - /:/host/root:ro
+      - /var/run/docker.sock:/var/run/docker.sock
+    # privileged: true

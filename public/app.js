@@ -26,6 +26,22 @@ function formatUptime(sec) {
   return `${h}h ${m}m`;
 }
 
+async function updContainer() {
+    const cont = await fetch("/api/containers");
+    const containers = await cont.json();
+    const contWrap = document.getElementById("docker");
+
+    contWrap.innerHTML = "";
+
+    containers.forEach(c => {
+        const li = document.createElement("li");
+        li.title = c.image;
+        li.innerText = `${c.name} • ${c.state}`;
+
+        contWrap.append(li);
+    });
+}
+
 async function update() {
     const res = await fetch("/api/stats");
     const data = await res.json();
@@ -52,5 +68,7 @@ async function update() {
         `UP ${formatUptime(data.uptime)}`;
 }
 
-setInterval(update, 2000);
 update();
+
+setInterval(update, 2000);
+setInterval(updContainer, 10000);
