@@ -32,6 +32,7 @@ function updContainer(data) {
 
     contWrap.innerHTML = "";
 
+    console.log(data.containers);
     data.containers.forEach(c => {
         const li = document.createElement("li");
         li.title = c.image;
@@ -46,7 +47,7 @@ function update(data) {
     pushValue(ramHistory, data.ram.percent);
     
     document.getElementById("hostname").innerText = data.hostname;
-
+    console.log(data)
     const tempsText = data.cpuTemps.map(t => `${t.core}: ${t.temp.toFixed(0)}°C`).join("\n");
 
     document.getElementById("cpu").innerText =
@@ -63,10 +64,6 @@ function update(data) {
         `${formatGB(data.disk.used)} / ${formatGB(data.disk.total)} GB\n` +
         `UP ${formatUptime(data.uptime)}`;
 }
-
-io.on("connection", (socket) => {
-    socket.emit("stats", metrics);
-});
 
 socket.on("stats", (data) => {
     update(data);

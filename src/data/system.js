@@ -1,3 +1,5 @@
+const fs = require("fs");
+
 function getCpuName() {
     const data = fs.readFileSync("/host/proc/cpuinfo", "utf8");
     const match = data.match(/model name\s+:\s+(.+)/);

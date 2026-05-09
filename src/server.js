@@ -11,4 +11,8 @@ app.use(express.static("public"));
 
 startMetrics(io);
 
+io.on("connection", (socket) => {
+    socket.emit("stats", metrics);
+});
+
 server.listen(3939);

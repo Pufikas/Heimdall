@@ -8,6 +8,7 @@ const { getUptime } = require("../data/uptime");
 let metrics = {};
 
 async function collectMetrics() {
+    console.log(metrics);
     metrics = {
         cpu: getCpuUsage(),
         ram: getRamUsage(),

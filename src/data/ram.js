@@ -1,3 +1,5 @@
+const fs = require("fs");
+
 function getRamUsage() {
     const data = fs.readFileSync("/host/proc/meminfo", "utf8");
     const total = parseInt(data.match(/MemTotal:\s+(\d+)/)[1]);
