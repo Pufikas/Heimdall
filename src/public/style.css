@@ -65,46 +65,18 @@ pre {
 
 .dockerTable {
     width: 100%;
-    margin-bottom: 1.5em;
-    border-spacing: 0;
+    border-collapse: collapse;
+    font-family: monospace;
+}
 
-    thead {
-        position: absolute;
-        padding: 0;
-        border: 0;
-        height: 1px;
-        width: 1px;
-        overflow: hidden;
-    }
+.dockerTable th,
+.dockerTable td {
+    padding: 6px 10px;
+    text-align: left;
+}
 
-    th {
-        background-color: #239fa5;
-        border: 1px solid #67261f;
-        font-weight: normal;
-        text-align: center;
-        color: white;
-
-        &:first-of-type {
-            text-align: left;
-        }
-    }
-
-    tbody, tr, th, td {
-        display: block;
-        padding: 0;
-        text-align: left;
-        white-space: normal;
-    }
-
-    tr, td {
-        padding: 0.5em;
-        vertical-align: middle;
-    }
-
-    th[scope="row"] {
-        background-color: rgba(38,137,13,1);
-        color: white;
-    }
+.dockerTable tbody tr:hover {
+    background: rgba(255,255,255,0.05);
 }
 
 .running {
