@@ -28,17 +28,22 @@ function formatUptime(sec) {
 }
 
 function updContainer(data) {
-    const contWrap = document.getElementById("docker");
+    const dockerCont = document.getElementById("dockerBody");
 
-    contWrap.innerHTML = "";
+    dockerCont.innerHTML = "";
 
-    console.log(data.containers);
     data.containers.forEach(c => {
-        const li = document.createElement("li");
-        li.title = c.image;
-        li.innerText = `${c.name} • ${c.state}`;
+        const row = document.createElement("tr");
+        const contStatus = c.state === "running" ? "running" : "stopped";
 
-        contWrap.append(li);
+        row.innerHTML = `
+            <td>${c.id}</td>
+            <td>${c.name}</td>
+            <td>${c.image}</td>
+            <td class="${contStatus}>${c.status}</td>
+        `;
+
+        dockerCont.append(row);
     });
 }
 
@@ -47,7 +52,6 @@ function update(data) {
     pushValue(ramHistory, data.ram.percent);
     
     document.getElementById("hostname").innerText = data.hostname;
-    console.log(data)
     const tempsText = data.cpuTemps.map(t => `${t.core}: ${t.temp.toFixed(0)}°C`).join("\n");
 
     document.getElementById("cpu").innerText =
@@ -70,6 +74,6 @@ socket.on("stats", (data) => {
     updContainer(data);
 });
 
-socket.on("disconnect", () => {
-    console.log("client disconnected");
+socket.on("connect_error", (err) => {
+    console.error(err);
 });

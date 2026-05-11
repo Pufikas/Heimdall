@@ -8,6 +8,8 @@ services:
 
     restart: unless-stopped
 
+    environment:
+      HOST_ROOT: /host
     volumes:
       - /proc:/host/proc:ro
       - /sys:/host/sys:ro

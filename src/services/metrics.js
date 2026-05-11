@@ -8,7 +8,6 @@ const { getUptime } = require("../data/uptime");
 let metrics = {};
 
 async function collectMetrics() {
-    console.log(metrics);
     metrics = {
         cpu: getCpuUsage(),
         ram: getRamUsage(),
@@ -19,19 +18,10 @@ async function collectMetrics() {
         cpuTemps: getCpuTemps(),
         containers: await getContainers()
     };
-}
 
-async function startMetrics(io) {
-    try {
-        await collectMetrics();
-        io.emit("stats", metrics);
-    } catch (err) {
-        console.error(err);
-    }
-    
-    setInterval(startMetrics, 2000);
+    return metrics;
 }
 
 module.exports = {
-    startMetrics
+    collectMetrics,
 };

@@ -1,7 +1,8 @@
 const fs = require("fs");
+const { HOST_ROOT } = require("../services/utils");
 
 function getRamUsage() {
-    const data = fs.readFileSync("/host/proc/meminfo", "utf8");
+    const data = fs.readFileSync(`${HOST_ROOT}/proc/meminfo`, "utf8");
     const total = parseInt(data.match(/MemTotal:\s+(\d+)/)[1]);
     const available = parseInt(data.match(/MemAvailable:\s+(\d+)/)[1]);
     const used = total - available;

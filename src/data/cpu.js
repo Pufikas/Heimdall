@@ -1,10 +1,11 @@
 const fs = require("fs");
+const { HOST_ROOT } = require("../services/utils");
 
 let lastIdle = 0;
 let lastTotal = 0;
 
 function getCpuUsage() {
-  const data = fs.readFileSync("/host/proc/stat", "utf8");
+  const data = fs.readFileSync(`${HOST_ROOT}/proc/stat`, "utf8");
   const line = data.split("\n")[0];
 
   const values = line.split(/\s+/).slice(1).map(Number);
@@ -25,7 +26,7 @@ function getCpuUsage() {
 
 function getCpuTemps() {
     try {
-        const base = "/host/sys/class/hwmon";
+        const base = `${HOST_ROOT}/sys/class/hwmon`;
         const dirs = fs.readdirSync(base);
 
         for (const dir of dirs) {

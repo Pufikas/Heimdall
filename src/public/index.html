@@ -2,7 +2,7 @@
 <html>
 <head>
     <title>Heimdall Dashboard</title>
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="/style.css">
 </head>
 <body>
     <div class="container">
@@ -14,12 +14,24 @@
             <pre id="disk" class="box">DISK</pre>
         </div>
 
-        <ul id="docker" class="docker-containers">
-            
-        </ul>
+        <div id="docker" class="docker-containers">
+            <table class="dockerTable">
+                <thead>
+                    <tr>
+                        <th>CONTAINER ID</th>
+                        <th>NAMES</th>
+                        <th>STATUS</th>
+                    </tr>
+                </thead>
+
+                <tbody id="dockerBody">
+                    
+                </tbody>
+            </table>
+        </div>
     </div>
     
     <script src="/socket.io/socket.io.js"></script>
-    <script src="app.js"></script>
+    <script src="/app.js"></script>
 </body>
 </html>
